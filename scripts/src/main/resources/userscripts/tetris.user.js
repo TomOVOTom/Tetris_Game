@@ -2,8 +2,8 @@
 
 // ==UserScript==
 // @name         Tetris Game
-// @version      1.1
-// @description  Adds a Tetris game to the webpage with softer colors and adjustable speed
+// @version      1.2
+// @description  Adds a Tetris game to the webpage with resizable window and restart functionality
 // @match        *://*/*
 // @grant        none
 // ==/UserScript==
@@ -17,16 +17,18 @@
     gameContainer.style.top = '50%';
     gameContainer.style.left = '50%';
     gameContainer.style.transform = 'translate(-50%, -50%)';
-    gameContainer.style.width = '300px';
-    gameContainer.style.height = '600px';
+    gameContainer.style.width = '400px'; // Increased initial width
+    gameContainer.style.height = '800px'; // Increased initial height
     gameContainer.style.backgroundColor = 'black';
     gameContainer.style.zIndex = '10000';
+    gameContainer.style.resize = 'both'; // Make the container resizable
+    gameContainer.style.overflow = 'auto'; // Ensure content is visible when resized
     document.body.appendChild(gameContainer);
 
     // Create canvas for Tetris game
     const canvas = document.createElement('canvas');
-    canvas.width = 300;
-    canvas.height = 600;
+    canvas.width = 400; // Match initial width
+    canvas.height = 800; // Match initial height
     gameContainer.appendChild(canvas);
     const context = canvas.getContext('2d');
 
@@ -42,10 +44,19 @@
     speedControl.style.transform = 'translateX(-50%)';
     document.body.appendChild(speedControl);
 
+    // Create restart button
+    const restartButton = document.createElement('button');
+    restartButton.textContent = 'Restart Game';
+    restartButton.style.position = 'fixed';
+    restartButton.style.top = '50px';
+    restartButton.style.left = '50%';
+    restartButton.style.transform = 'translateX(-50%)';
+    document.body.appendChild(restartButton);
+
     // Tetris game logic
     const COLS = 10;
     const ROWS = 20;
-    const BLOCK_SIZE = 30;
+    const BLOCK_SIZE = 40; // Adjusted block size for larger canvas
     const COLORS = ['#ADD8E6', '#87CEEB', '#FFA07A', '#FFFFE0', '#98FB98', '#DDA0DD', '#FFB6C1']; // Softer colors
 
     const SHAPES = [
@@ -58,10 +69,15 @@
         [[1, 1, 1], [0, 0, 1]]
     ];
 
-    let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
-    let currentPiece = getRandomPiece();
-    let gameOver = false;
-    let gameSpeed = 500;
+    let board, currentPiece, gameOver, gameSpeed;
+
+    function initGame() {
+        board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+        currentPiece = getRandomPiece();
+        gameOver = false;
+        gameSpeed = 500;
+        update();
+    }
 
     function getRandomPiece() {
         const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
@@ -180,5 +196,9 @@
         gameSpeed = 1000 - event.target.value;
     });
 
-    update();
+    restartButton.addEventListener('click', () => {
+        initGame();
+    });
+
+    initGame();
 })();
